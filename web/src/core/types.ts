@@ -17,6 +17,7 @@ export interface OpenPayload {
     apps: AppDef[];
     installedApps?: string[];
     homeLayout?: string;
+    mailDomain?: string;
     wallpaper: {
         lock: string;
         home: string;

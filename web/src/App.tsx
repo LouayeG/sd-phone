@@ -24,6 +24,7 @@ import { useNuiEvent } from '@/hooks/useNuiEvent';
 import { seedSessionState } from '@/hooks/useSessionState';
 import { onOpenMail, onOpenMaps, onOpenMessages } from '@/shell/deeplink';
 import { fetchNui, isFiveM } from '@/core/nui';
+import { setMailDomain } from '@/core/accountsApi';
 import { voiceHub, setLocalTalking } from '@/media/nearbyVoice';
 import { useMusicLibrary } from '@/stores/musicLibraryStore';
 import { DEFAULT_FRAME_COLOR } from '@/shell/frameColors';
@@ -191,6 +192,7 @@ function AppContent() {
     useNuiEvent('sd-phone:open', useCallback((data) => {
         if (!data) return;
         if (data.locale) useLocaleStore.getState().applyServerDefault(data.locale);   // server default, unless the player already picked their own
+        if (data.mailDomain) setMailDomain(data.mailDomain);
         const nextView: ViewState = {
             apps:          data.apps,
             dock:          data.dock,

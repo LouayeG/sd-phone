@@ -1,7 +1,11 @@
 import { fetchNui, isFiveM } from './nui';
 import { apiCall, apiData } from '@/core/api';
 
-export const MAIL_DOMAIN = 'lifeinvader.com';
+export let MAIL_DOMAIN = 'lifeinvader.com';
+
+export function setMailDomain(domain: string): void {
+    if (domain) MAIL_DOMAIN = domain;
+}
 
 export interface AccountMe { username: string; name: string; email?: string; phone?: string }
 export interface ApiResult { ok: boolean; message?: string }

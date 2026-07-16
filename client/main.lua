@@ -314,6 +314,7 @@ local function OpenPhone()
             apps      = config.Homescreen.Apps,
             installedApps = installedApps,
             homeLayout = homeLayout,
+            mailDomain = config.Mail.Domain,
             wallpaper = {
                 lock = config.Lockscreen.Wallpaper,
                 home = config.Homescreen.Wallpaper,
