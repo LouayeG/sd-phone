@@ -40,6 +40,16 @@ return {
     -- player while the phone is out (the classic behaviour).
     AllowMovement = true,
 
+    -- Hold this key/button (while the phone is open) to free the mouse for
+    -- camera rotation without closing the phone. Releasing it returns to the
+    -- on-screen cursor. Combat stays suppressed, so you can look around but not
+    -- shoot. Defaults to the first mouse side button (thumb button), which is
+    -- almost never taken; Left Alt and the middle button are avoided because
+    -- target scripts and camera zoom already use them. No side button on your
+    -- mouse? Rebind it in FiveM's Key Bindings. Only active when AllowMovement
+    -- is on.
+    LookKeybind = 'MOUSE_EXTRABTN1',
+
     -- Third-person "holding a phone" pose + prop, shown to other players while
     -- the phone is out. Looping upper-body anim so the player can still walk.
     -- The prop model is PropPrefix .. <frame colour> (e.g. sd_phone_red), so

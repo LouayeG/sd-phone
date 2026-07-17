@@ -102,6 +102,8 @@ local flashlightOn = false
 local cameraActive = false
 ---@type boolean True while a UI text field is focused.
 local typingInPhone = false
+---@type boolean True while the hold-to-look keybind has released the cursor for camera control.
+local lookMode = false
 
 ---Turns a camera rotation into a forward unit vector.
 ---@param rot vector3 gameplay-cam rotation in degrees
@@ -221,8 +223,10 @@ local function startMovementThread()
                 if ClosePhone then ClosePhone() end
             elseif not typingInPhone and not cameraActive then
                 DisablePlayerFiring(PlayerId(), true)
-                DisableControlAction(0, 1, true)
-                DisableControlAction(0, 2, true)
+                if not lookMode then
+                    DisableControlAction(0, 1, true)
+                    DisableControlAction(0, 2, true)
+                end
                 DisableControlAction(0, 24, true)
                 DisableControlAction(0, 25, true)
                 DisableControlAction(0, 257, true)
@@ -248,6 +252,25 @@ end
 local function syncKeepInput()
     if phoneState.open and config.Phone.AllowMovement then
         SetNuiFocusKeepInput(not typingInPhone and not cameraActive)
+    end
+end
+
+---Enters look mode: releases the NUI cursor so the mouse rotates the camera while the phone stays
+---on screen. Only fires with the phone open in movement mode and not typing or in the camera view.
+local function enterLookMode()
+    if lookMode or not phoneState.open or not config.Phone.AllowMovement then return end
+    if typingInPhone or cameraActive then return end
+    lookMode = true
+    SetNuiFocus(false, false)
+end
+
+---Exits look mode: restores the NUI cursor and keep-input. No-op unless currently looking.
+local function exitLookMode()
+    if not lookMode then return end
+    lookMode = false
+    if phoneState.open then
+        SetNuiFocus(true, true)
+        syncKeepInput()
     end
 end
 
@@ -344,6 +367,7 @@ function ClosePhone()
     TriggerServerEvent('sd-phone:server:phone:setOpen', false)
     SetNuiFocus(false, false)
     typingInPhone = false
+    lookMode = false
     SendNUIMessage({ action = 'sd-phone:close' })
 
     updatePose()
@@ -369,6 +393,11 @@ end
 RegisterCommand('+sdphone_toggle', TogglePhone, false)
 RegisterCommand('-sdphone_toggle', function() end, false)
 RegisterKeyMapping('+sdphone_toggle', 'Toggle Phone', 'keyboard', config.Phone.Keybind)
+
+-- Hold-to-look: the +command frees the mouse for camera rotation, the -command restores the cursor.
+RegisterCommand('+sdphone_look', enterLookMode, false)
+RegisterCommand('-sdphone_look', exitLookMode, false)
+RegisterKeyMapping('+sdphone_look', 'Phone: Hold to look around', 'keyboard', config.Phone.LookKeybind)
 
 ---Opens the phone after a phone item is used, adopting the item variant's frame colour when it
 ---passes the FRAME_COLORS whitelist.
