@@ -46,6 +46,22 @@ sd-phone is a complete smartphone experience: lockscreen with passcode and Face 
 
 Everything player-facing is translatable, apps resume where you left them, and the phone auto-detects your framework, inventory, banking, housing, garage, and voice resources with zero config flags.
 
+## Powered by Fivemanage
+
+<div align="center">
+
+<a href="https://refer.fivemanage.com/samuel"><img src="https://avatars.githubusercontent.com/u/132940930?s=260&v=4" alt="Fivemanage" width="260" /></a>
+
+### sd-phone is partnered with Fivemanage for media hosting
+
+Every screenshot, camera video and voice recording the phone captures uploads to **[Fivemanage](https://refer.fivemanage.com/samuel)** and comes back as a fast CDN URL, so you never run your own media server. It is the CDN and logging platform trusted by thousands of FiveM servers, and it powers Photos, the Camera app and Voice Memos out of the box.
+
+<a href="https://refer.fivemanage.com/samuel"><img src="https://img.shields.io/badge/Get%20started%20with%20Fivemanage-%E2%86%92-0D0D0D?style=for-the-badge" alt="Get started with Fivemanage" /></a>
+
+<sub>Free tier included. Drop your API key into <code>configs/server/apikeys.lua</code> and uploads just work.</sub>
+
+</div>
+
 ## Apps
 
 | | |
@@ -108,22 +124,6 @@ Full guide: [docs.samueldev.shop/resources/phone/installation](https://docs.samu
 3. Optionally set your API keys in `configs/server/apikeys.lua` (GIPHY for the GIF picker, [Fivemanage](https://refer.fivemanage.com/samuel) for media uploads).
 
 The pre-built UI ships at `web/build/`, so a fresh clone runs without touching npm. To rebuild after UI changes: `cd web && npm install && npm run build`.
-
-## Media hosting
-
-<div align="center">
-
-<a href="https://refer.fivemanage.com/samuel"><img src="https://avatars.githubusercontent.com/u/132940930?s=240&v=4" alt="Fivemanage" width="240" /></a>
-
-### Photos, clips and voice notes are hosted on Fivemanage
-
-Every screenshot, camera video and voice recording the phone captures is uploaded to **[Fivemanage](https://refer.fivemanage.com/samuel)** and served back as a fast CDN URL — no self-hosted media server, no bandwidth headaches. It's the CDN and logging platform trusted by thousands of FiveM servers, and it powers Photos, the Camera app and Voice Memos out of the box.
-
-<a href="https://refer.fivemanage.com/samuel"><img src="https://img.shields.io/badge/Get%20started%20with%20Fivemanage-%E2%86%92-0D0D0D?style=for-the-badge" alt="Get started with Fivemanage" /></a>
-
-<sub>Free tier included — drop your API key into <code>configs/server/apikeys.lua</code> and uploads just work.</sub>
-
-</div>
 
 ---
 
