@@ -133,7 +133,7 @@ export function Modal({ title, children, onClose, width = 'w-[420px]' }: {
     width?: string;
 }) {
     return (
-        <div className="absolute inset-0 z-40 flex items-center justify-center rounded-2xl bg-black/50 backdrop-blur-[2px]" onMouseDown={onClose}>
+        <div className="absolute inset-0 z-40 flex items-center justify-center rounded-2xl bg-black/50" onMouseDown={onClose}>
             <div
                 className={clsx('max-h-[80%] overflow-y-auto rounded-xl bg-[#1a1b1f] p-4 shadow-2xl ring-1 ring-white/10', width)}
                 onMouseDown={e => e.stopPropagation()}

@@ -44,7 +44,7 @@ export function Dashboard({ onSearch }: { onSearch: (q: string) => void }) {
                     onEnter={() => { if (q.trim().length >= 2) onSearch(q.trim()); }}
                     placeholder="Name, citizen ID, phone number, Birdy handle or account username…"
                 />
-                <div className="mt-1.5 text-[11.5px] text-zinc-600">Press Enter to search. Results are capped at 25 per query.</div>
+                <div className="mt-1.5 text-[11.5px] text-zinc-600">Press Enter to search. Results load 20 at a time.</div>
             </Card>
 
             {loading ? (

@@ -81,8 +81,10 @@ export function AdminPanel() {
 
     return (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-6 font-sf" onMouseDown={close}>
+            {/* No backdrop-filter here: FiveM's CEF can't sample the game feed behind a
+                transparent NUI page, so backdrop-blur paints a huge black region instead. */}
             <div
-                className="relative flex h-[min(780px,92vh)] w-[min(1180px,94vw)] overflow-hidden rounded-2xl bg-[#101114]/[0.97] shadow-2xl ring-1 ring-white/10 backdrop-blur-xl"
+                className="relative flex h-[min(780px,92vh)] w-[min(1180px,94vw)] overflow-hidden rounded-2xl bg-[#101114] shadow-2xl ring-1 ring-white/10"
                 onMouseDown={e => e.stopPropagation()}
             >
                 {/* Sidebar */}
