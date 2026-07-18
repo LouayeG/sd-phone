@@ -11,6 +11,7 @@ import { AppSwitcher } from '@/shell/AppSwitcher';
 import { AppDeck, FullscreenStage, type DeckAppCtx } from '@/shell/AppDeck';
 import { Homescreen }  from '@/shell/Homescreen';
 import { useBadgeStore } from '@/stores/badgeStore';
+import { useBatteryStore } from '@/stores/batteryStore';
 import { useDownloadStore, useDownloadingIds } from '@/stores/downloadStore';
 import { useLocaleStore } from '@/stores/localeStore';
 import { HomeIndicator } from '@/shell/HomeIndicator';
@@ -227,6 +228,7 @@ function AppContent() {
         setSavedLayout(data.homeLayout ? parseLayout(data.homeLayout) : loadHomeLayout());
         setLocked(data.locked);
         setBattery(data.battery);
+        useBatteryStore.getState().setLevel(data.battery);
         if (data.frameColor) setFrameColor(data.frameColor);
         setLeaving(false);
         setEntering(true);
@@ -486,7 +488,7 @@ function AppContent() {
     }, []);
 
     useNuiEvent('sd-phone:battery', useCallback((pct) => {
-        if (typeof pct === 'number') setBattery(pct);
+        if (typeof pct === 'number') { setBattery(pct); useBatteryStore.getState().setLevel(pct); }
     }, []));
 
     const [notifs, setNotifs] = useState<NotificationItem[]>([]);
