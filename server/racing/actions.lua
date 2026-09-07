@@ -634,8 +634,8 @@ function actions.setAlias(src, payload)
     return ok({ alias = alias })
 end
 
----Sets or clears the caller's avatar. Only https links are stored: the tablet renders the URL
----straight into an image, so a plain http one would be a mixed-content hole.
+---Sets or clears the caller's avatar: the picture must be one of the caller's own gallery photos,
+---and an empty value clears it.
 ---@param src integer player server id
 ---@param payload table { avatar }
 ---@return table envelope
@@ -646,9 +646,10 @@ function actions.setAvatar(src, payload)
         return fail('racing.tooManyProfileChangesWait', 'Too many profile changes, wait a moment')
     end
 
-    local avatar = payload.avatar ~= nil and mediaGuard.photo(cid, payload.avatar) or nil
-    if payload.avatar ~= nil and not avatar then
-        return fail('racing.avatarLinksHaveStartWith', 'Avatar links have to start with https://')
+    local wanted = util.trim(payload.avatar)
+    local avatar = wanted ~= '' and mediaGuard.photo(cid, wanted) or nil
+    if wanted ~= '' and not avatar then
+        return fail('racing.avatarNotInGallery', 'Choose a picture from your Photos gallery')
     end
 
     local row = store.profileRow(cid)

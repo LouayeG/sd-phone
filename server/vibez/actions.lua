@@ -498,8 +498,6 @@ function actions.addComment(src, payload)
 
     local text = trim(payload.text):sub(1, 500)
 
-    -- A GIF reply carries no words, so the empty-comment guard has to accept one in place of text.
-    -- Only http(s) is stored: the URL is handed straight back to an <img> on every viewer's phone.
     local gifUrl = mediaGuard.giphy(payload.gifUrl)
     if text == '' and not gifUrl then return fail('vibez.emptyComment', 'Empty comment') end
 
@@ -632,7 +630,7 @@ function actions.updateProfile(src, payload)
     store.upsertProfile(acc.username, {
         displayName = name,
         bio         = trim(payload.bio):sub(1, 160),
-        avatar      = sanitizeUrl(player.getIdentifier(src), payload.avatar),
+        avatar      = mediaGuard.photoOrCurrent(player.getIdentifier(src), payload.avatar, existing.avatar),
         verified    = flag(existing.verified),
         createdAt   = existing.created_at,
     })

@@ -37,12 +37,12 @@ return {
     MaxAlbumNameLength = 40,
 
     -- Player URL import (the Import button in Photos). Imported URLs are stored and rendered
-    -- as-is, NOT re-hosted. Keep this false unless ImportAllowlist contains only media hosts you
-    -- trust: a hostile host sees the IP address of every client that renders one of its images.
-    -- Camera uploads are unaffected because their URL comes from the server uploader.
-    -- After upgrading, legacy rows without server provenance remain visible to their owner but
-    -- cannot be newly posted or shared; capture/import them again to mark them trusted.
-    AllowImport = false, -- master switch; false disables URL import and hides the button.
+    -- as-is, NOT re-hosted, so every phone that shows the picture fetches it from that host. A
+    -- hostile host would learn the IP address of each viewer, which is why only the hosts in
+    -- ImportAllowlist are accepted: large image CDNs behind their own edge network, where the
+    -- uploader never sees who views the file. Camera uploads are unaffected because their URL
+    -- comes from the server uploader.
+    AllowImport = true, -- master switch; false disables URL import and hides the button.
 
     -- Hosts to always reject. Exact hostnames, or '*.domain.com' for every subdomain.
     -- IP loggers and URL shorteners belong here: a shortener can redirect an otherwise
@@ -53,8 +53,26 @@ return {
         'bit.ly', 'tinyurl.com', 't.co',
     },
 
-    -- Required when AllowImport is true: ONLY these hosts are allowed (the blocklist still applies
-    -- on top). An empty list rejects every import instead of trusting the whole internet. Same
-    -- '*.domain.com' wildcard syntax.
-    ImportAllowlist = {},
+    -- ONLY these hosts may be imported (the blocklist still applies on top). An empty list
+    -- rejects every import instead of trusting the whole internet. '*.domain.com' matches the
+    -- bare domain and every subdomain. Add a host only if its images are served by the platform
+    -- itself, never by the person who uploaded them.
+    ImportAllowlist = {
+        '*.imgur.com',
+        '*.discordapp.com', '*.discordapp.net', -- note: Discord attachment links expire after roughly a day
+        '*.fivemanage.com',
+        '*.ibb.co',
+        '*.postimg.cc',
+        '*.gyazo.com',
+        '*.redd.it',
+        '*.giphy.com',
+        '*.tenor.com',
+        '*.twimg.com',
+        '*.pinimg.com',
+        '*.githubusercontent.com',
+        '*.googleusercontent.com',
+        '*.unsplash.com',
+        '*.pexels.com',
+        '*.wikimedia.org',
+    },
 }

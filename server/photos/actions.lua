@@ -147,9 +147,8 @@ local function hostMatchesList(host, list)
     return false
 end
 
----Host check for PLAYER-supplied import URLs. Imports require HTTPS and an explicit allowlist;
----the blocklist still wins. Camera uploads never pass through here - their URL comes from the
----server-side uploader.
+---Host check for player-supplied import URLs: HTTPS only, host on config.Photos.ImportAllowlist
+---and not on ImportBlocklist. An empty allowlist rejects everything.
 ---@param url any
 ---@return boolean
 function actions.isAllowedImportUrl(url)
@@ -161,9 +160,8 @@ function actions.isAllowedImportUrl(url)
     return type(allow) == 'table' and #allow > 0 and hostMatchesList(host, allow)
 end
 
----Persists a photo URL against the caller: the URL must be a non-empty HTTPS string within the
----column cap. Only URLs vouched for by the server uploader or explicit import allowlist are marked
----trusted and may later be published to other players.
+---Persists a photo URL against the caller: a non-empty HTTPS string within the column cap, with
+---the gallery pruned back under config.Photos.MaxPhotosPerPlayer.
 ---@param source number player server id
 ---@param url string HTTPS URL of the hosted media
 ---@param trusted boolean|nil server-established provenance

@@ -196,6 +196,7 @@ end
 
 ---Clamps/coerces composer metadata per kind: URLs trimmed + byte-capped, voice duration and
 ---waveform bars clamped, waypoint strings capped, money forced to a finite capped integer.
+---@param cid string caller's framework character id
 ---@param kind string whitelisted message kind
 ---@param payload table raw client payload
 ---@return table meta sanitized meta (possibly empty)
@@ -316,7 +317,9 @@ function actions.saveProfile(src, payload)
     local name = trim(payload.name):sub(1, 50)
     if name == '' then return fail('cherry.nameRequired', 'Name is required') end
 
-    local photos = mediaGuard.photos(player.getIdentifier(src), payload.photos, 6)
+    local existing = store.getProfile(acc.username)
+    local photos = mediaGuard.photos(player.getIdentifier(src), payload.photos, 6,
+        existing and store.decodeJson(existing.photos) or nil)
 
     store.upsertProfile(acc.username, {
         name       = name,

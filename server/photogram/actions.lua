@@ -781,7 +781,7 @@ function actions.updateProfile(src, payload)
 
     local name = trim(payload.name):sub(1, 64)
     if name == '' then name = existing.display_name end
-    local avatar = mediaGuard.photo(player.getIdentifier(src), payload.avatar)
+    local avatar = mediaGuard.photoOrCurrent(player.getIdentifier(src), payload.avatar, existing.avatar)
 
     store.upsertProfile(acc.username, {
         displayName = name,

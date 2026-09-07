@@ -178,6 +178,7 @@ end
 ---Validates + clamps a client save payload into a row-ready table. Category is whitelist-checked
 ---and the headline required; everything else is clamped to the configured caps.
 ---@param payload any client-supplied article draft
+---@param cid string|nil caller's framework character id, nil for server-authored articles
 ---@return table|nil row row-ready fields, nil on a hard validation failure
 ---@return string? message failure reason when row is nil
 local function sanitize(payload, cid)
@@ -215,7 +216,9 @@ local function sanitize(payload, cid)
             image = mediaGuard.https(rawImage)
         end
     end
-    if rawImage ~= '' and not image then return nil, 'Choose an image from your gallery' end
+    if rawImage ~= '' and not image then
+        return nil, cid and 'Choose an image from your Photos gallery' or 'The article image has to be an HTTPS link'
+    end
 
     return {
         category = category,

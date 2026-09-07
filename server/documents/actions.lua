@@ -829,7 +829,7 @@ function actions.requestShare(src, target, payload)
     if not row then return fail('documents.documentNotFound', 'Document not found') end
     if isTruthy(row.locked) then return fail('documents.documentCannotShared', 'This document cannot be shared') end
     if row.kind == 'image' and not mediaGuard.photo(cid, row.url) then
-        return fail('documents.validImageUrlRequired', 'A valid image URL is required')
+        return fail('documents.imageNotInGallery', 'Only images from your Photos gallery can be shared')
     end
 
     -- Signatures travel with the copy (read server-side here, re-inserted server-side on

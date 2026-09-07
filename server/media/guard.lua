@@ -17,8 +17,7 @@ local TEMP_VOICE_MS <const> = 10 * 60 * 1000
 ---@type table<string, table<string, integer>> citizenid -> URL -> expiry timer
 local temporaryVoices = {}
 
----Normalises an HTTPS URL without truncating it. Truncation would turn a valid gallery URL into a
----different value before the ownership lookup and makes security decisions on partial input.
+---Trims a value and returns it when it is an HTTPS URL within the column width, else nil.
 ---@param value any
 ---@return string|nil url
 local function httpsUrl(value)
@@ -27,8 +26,7 @@ local function httpsUrl(value)
     return url
 end
 
----HTTPS shape check for server-authored integration content. Client write paths must use one of
----the ownership/host-specific functions below instead.
+---HTTPS shape check for server-authored content; client write paths use the ownership checks below.
 ---@param value any
 ---@return string|nil url
 function guard.https(value) return httpsUrl(value) end
@@ -43,20 +41,42 @@ function guard.photo(citizenid, value)
     return photos.hasUrl(citizenid, url) and url or nil
 end
 
----Filters a client image list to distinct gallery-owned HTTPS URLs.
+---Resolves a resent photo field: keeps `current` when the value matches it or fails guard.photo,
+---accepts a new gallery URL, and clears on an empty value.
+---@param citizenid string|nil caller's framework character id
+---@param value any client-supplied URL
+---@param current string|nil URL currently stored for this field
+---@return string|nil url
+function guard.photoOrCurrent(citizenid, value, current)
+    local sent = util.trim(value)
+    if sent == '' then return nil end
+    if type(current) ~= 'string' or current == '' then current = nil end
+    if sent == current then return current end
+    return guard.photo(citizenid, value) or current
+end
+
+---Filters a client image list to distinct gallery-owned HTTPS URLs; entries already in `current`
+---are kept without a lookup. Scans at most 64 entries.
 ---@param citizenid string|nil caller's framework character id
 ---@param values any client-supplied URL list
 ---@param limit integer maximum returned items
+---@param current string[]|nil URLs currently stored for this list
 ---@return string[] urls
-function guard.photos(citizenid, values, limit)
+function guard.photos(citizenid, values, limit, current)
     local out, seen = {}, {}
     if type(values) ~= 'table' then return out end
     limit = math.max(0, math.floor(tonumber(limit) or 0))
     if limit == 0 then return out end
-    -- A forged oversized array must not turn one request into an unbounded run of DB reads.
+    local keep = {}
+    if type(current) == 'table' then
+        for i = 1, #current do
+            if type(current[i]) == 'string' and current[i] ~= '' then keep[current[i]] = true end
+        end
+    end
     local scanLimit = math.min(#values, math.max(limit * 4, 32), 64)
     for i = 1, scanLimit do
-        local url = guard.photo(citizenid, values[i])
+        local sent = util.trim(values[i])
+        local url = keep[sent] and sent or guard.photo(citizenid, values[i])
         if url and not seen[url] then
             seen[url] = true
             out[#out + 1] = url
@@ -66,8 +86,7 @@ function guard.photos(citizenid, values, limit)
     return out
 end
 
----Returns a URL only when it is an HTTPS GIPHY asset. GIF choices originate in the server-proxied
----GIPHY picker, so accepting any other host would let a modified client substitute an IP logger.
+---Returns a URL only when it is an HTTPS asset on giphy.com or one of its subdomains.
 ---@param value any client-supplied URL
 ---@return string|nil url
 function guard.giphy(value)
@@ -79,8 +98,7 @@ function guard.giphy(value)
     return url
 end
 
----Trusts a server-uploaded chat recording briefly. This is called only after the uploader returns
----a URL; it is not exposed through a client event.
+---Marks an uploader-returned recording as sendable by its owner for TEMP_VOICE_MS.
 ---@param citizenid string|nil caller's framework character id
 ---@param value any uploader-returned URL
 ---@return string|nil url
@@ -92,7 +110,8 @@ function guard.rememberVoice(citizenid, value)
     return url
 end
 
----Returns a URL only when it is an HTTPS recording in the caller's Voice Memos library.
+---Returns a URL only when it is an HTTPS recording in the caller's Voice Memos library or one
+---remembered by guard.rememberVoice that has not expired.
 ---@param citizenid string|nil caller's framework character id
 ---@param value any client-supplied URL
 ---@return string|nil url

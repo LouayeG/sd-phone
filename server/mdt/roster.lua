@@ -367,7 +367,7 @@ roster.meUpdate = access.audited('me.update', function(src, payload, me)
         fields.callsign = callsign:upper()
     end
     if payload.avatar ~= nil then
-        fields.avatar = mediaGuard.photo(me.citizenid, payload.avatar) or ''
+        fields.avatar = mediaGuard.photoOrCurrent(me.citizenid, payload.avatar, me.avatar) or ''
     end
     if payload.notes ~= nil then
         fields.notes = util.limitedString(payload.notes, 4000) or ''

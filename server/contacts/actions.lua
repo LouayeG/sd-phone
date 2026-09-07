@@ -46,16 +46,17 @@ local MAX_BLOCKED = 300
 ---digits, a nameless contact falls back to the typed number, lengths capped.
 ---@param cid string caller's framework character id
 ---@param payload any client-supplied contact fields
+---@param currentAvatar string|nil avatar already stored on the contact being edited
 ---@return { name: string, phone: string, email: string|nil, address: string|nil, avatar: string|nil }|nil fields
 ---@return table? refusal keyed refusal envelope when fields is nil
-local function validate(cid, payload)
+local function validate(cid, payload, currentAvatar)
     if type(payload) ~= 'table' then payload = {} end
     local name    = trim(payload.name)
     local typed   = trim(payload.phone)
     local phone   = (typed:gsub('%D', ''))
     local email   = trim(payload.email)
     local address = trim(payload.address)
-    local avatar  = payload.avatar ~= nil and mediaGuard.photo(cid, payload.avatar) or nil
+    local avatar  = mediaGuard.photoOrCurrent(cid, payload.avatar, currentAvatar)
 
     if name == '' and phone == '' then
         return nil, fail('contacts.nameNumberRequired', 'A name or number is required')
@@ -83,7 +84,7 @@ local function validate(cid, payload)
         phone   = phone,
         email   = email   ~= '' and email   or nil,
         address = address ~= '' and address or nil,
-        avatar  = avatar  ~= '' and avatar  or nil,
+        avatar  = avatar,
     }
 end
 
@@ -156,7 +157,7 @@ function actions.saveCard(source, payload)
     local cid = player.getIdentifier(source)
     if not cid then return fail('contacts.playerNotFound', 'Player not found') end
     payload = type(payload) == 'table' and payload or {}
-    payload.avatar = payload.avatar ~= nil and mediaGuard.photo(cid, payload.avatar) or nil
+    payload.avatar = mediaGuard.photoOrCurrent(cid, payload.avatar, settings.getCard(cid).avatar)
     settings.setCard(cid, payload)
     return ok(settings.getCard(cid))
 end
@@ -292,9 +293,10 @@ function actions.update(source, payload)
 
     local id = type(payload.id) == 'string' and payload.id or ''
     if id == '' then return fail('contacts.contactIdRequired', 'Contact id is required') end
-    if not store.getContact(id, cid) then return fail('contacts.contactNotFound', 'Contact not found') end
+    local existing = store.getContact(id, cid)
+    if not existing then return fail('contacts.contactNotFound', 'Contact not found') end
 
-    local fields, refusal = validate(cid, payload)
+    local fields, refusal = validate(cid, payload, existing.avatar)
     if not fields then return refusal end
 
     if not store.updateContact(id, cid, fields) then

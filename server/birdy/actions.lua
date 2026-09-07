@@ -1005,6 +1005,7 @@ local VALID_DM_KINDS = { text = true, image = true, gif = true, money = true, lo
 
 ---Clamps/coerces composer metadata per kind: only whitelisted fields survive, strings are
 ---length-capped, numbers floored + clamped, money amounts reject non-finite doubles.
+---@param cid string caller's framework character id
 ---@param kind string validated DM kind (a VALID_DM_KINDS member)
 ---@param payload table raw client payload
 ---@return table meta whitelisted, clamped metadata

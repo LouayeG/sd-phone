@@ -39,12 +39,21 @@ function store.ensureSchema()
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     ]])
 
-    util.ensureColumns('phone_photos', {
+    local hadTrusted = MySQL.scalar.await([[
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = DATABASE() AND table_name = 'phone_photos' AND column_name = 'trusted'
+    ]]) ~= nil
+
+    local added = util.ensureColumns('phone_photos', {
         url        = "url VARCHAR(512) NOT NULL DEFAULT ''",
         trusted    = 'trusted TINYINT(1) NOT NULL DEFAULT 0',
         favorite   = 'favorite TINYINT(1) NOT NULL DEFAULT 0',
         created_at = 'created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP',
     })
+
+    if added and not hadTrusted then
+        MySQL.update.await('UPDATE phone_photos SET trusted = 1 WHERE trusted = 0')
+    end
 
     MySQL.query.await([[
         CREATE TABLE IF NOT EXISTS phone_photo_albums (
