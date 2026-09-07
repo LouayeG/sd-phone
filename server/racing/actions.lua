@@ -10,6 +10,8 @@ local config = require 'configs.racing'
 local notify = require 'bridge.server.notify'
 ---@type table Notifications module (server.notifications.init): identity-addressed banner routing.
 local notifications = require 'server.notifications.init'
+---@type table Media trust boundary: public racer avatars must come from the caller's gallery.
+local mediaGuard = require 'server.media.guard'
 
 ---@type table Actions module; the table returned at end of file.
 local actions = {}
@@ -644,8 +646,8 @@ function actions.setAvatar(src, payload)
         return fail('racing.tooManyProfileChangesWait', 'Too many profile changes, wait a moment')
     end
 
-    local avatar = util.limitedString(payload.avatar, int(LIMITS.AvatarUrlMax, 500))
-    if avatar and not avatar:match('^https://') then
+    local avatar = payload.avatar ~= nil and mediaGuard.photo(cid, payload.avatar) or nil
+    if payload.avatar ~= nil and not avatar then
         return fail('racing.avatarLinksHaveStartWith', 'Avatar links have to start with https://')
     end
 
