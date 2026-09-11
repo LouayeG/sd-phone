@@ -91,6 +91,13 @@ let active = catalogs.en;
 let currentCode = 'en';
 let catalogVersion = 0;
 
+const RTL_LOCALES = new Set(['ar', 'fa', 'he', 'ur']);
+
+function applyDocumentLocale(code: string): void {
+    document.documentElement.lang = code;
+    document.documentElement.dir = RTL_LOCALES.has(code.split('-')[0]) ? 'rtl' : 'ltr';
+}
+
 /** Select the active language (from config.Locale, or a player's saved pick).
  *  Falls back to English for an unknown code. Resolves once the catalog is
  *  applied; a newer setLocale call wins over a slower in-flight one. */
@@ -104,6 +111,7 @@ export function setLocale(lang: string): Promise<void> {
     const known = Boolean(catalogs[lang] || loaders[lang] || runtimeCodes.has(lang));
     const code = known ? lang : 'en';
     currentCode = code;
+    applyDocumentLocale(code);
     if (catalogs[code]) {
         active = catalogs[code];
         catalogVersion += 1;
